@@ -1,0 +1,10 @@
+
+*.cache
+
+\.vs/
+
+ResolutionHelper/obj/Debug/ResolutionHelper\.exe
+
+ResolutionHelper/obj/Debug/ResolutionHelper\.pdb
+
+ResolutionHelper/obj/Debug/
