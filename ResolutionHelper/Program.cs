@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
@@ -8,26 +9,25 @@ namespace ResolutionHelper
     {
         public static void Main(string[] args)
         {
-            var monitorInfos = EnumDisplayDevicesProvider.GetMonitorInfo();
-            var oldres = monitorInfos.Skip(1).Take(1).Single().CurrentDevMode;
+            //1 find current resolutions of monitors
 
-            foreach (var monitorInfo in monitorInfos)
-            {
-                Console.WriteLine(monitorInfo);
-                Console.WriteLine();
-            }
+            IEnumerable<NativeStructs.DISPLAY_DEVICE> devices = EnumDisplayDevicesProvider.GetDisplayDevices();
 
-            var a = EnumDisplayDevicesProvider.GetEnumDisplayDevices();
+            //2 calculate display memory for monitors
 
-            var device = a.Skip(1).Take(1).Single();
-            var res = EnumDisplayDevicesProvider.GetDeviceModes(device.DeviceName).Skip(3).Take(1).Single();
-            EnumDisplayDevicesProvider.ChangeResolution(device.DeviceName, ref res);
+            IList<MonitorInfo> monitors = devices.Select(d => EnumDisplayDevicesProvider.GetMonitorInfo(d.DeviceName)).ToList();
+            var monitor1 = monitors[0].AvailableDevModes.Select(dm => dm.GetResolution());
 
-            Thread.Sleep(3000);
-            
-            EnumDisplayDevicesProvider.ChangeResolution(device.DeviceName, ref oldres);
+            //3 work out the max resolution combination for the monitors we have (max limit is 65536KB maybe?)
 
-            Console.ReadKey();
+            //4 change monitor resolutions
+
+            //EnumDisplayDevicesProvider.ChangeResolution(device.DeviceName, ref res);
+
+
+            //5 offer option to switch back
+
+            //EnumDisplayDevicesProvider.ChangeResolution(device.DeviceName, ref res);
         }
     }
 }
