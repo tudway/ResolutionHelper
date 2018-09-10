@@ -6,6 +6,8 @@
 
         public int Height { get; set; }
 
+        public int DisplayMemoryKb { get; set; }
+
         public override bool Equals(object obj)
         {
             if (!(obj is Resolution resolution))

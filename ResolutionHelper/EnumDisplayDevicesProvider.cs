@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace ResolutionHelper
 {
     public static class EnumDisplayDevicesProvider
     {
-        public static IEnumerable<NativeStructs.DISPLAY_DEVICE> GetEnumDisplayDevices()
+        public static IEnumerable<NativeStructs.DISPLAY_DEVICE> GetDisplayDevices()
         {
-            NativeStructs.DISPLAY_DEVICE displayDevice = new NativeStructs.DISPLAY_DEVICE();
+            var displayDevice = new NativeStructs.DISPLAY_DEVICE();
             displayDevice.cb = Marshal.SizeOf(displayDevice);
             for (int i = 0; NativeMethods.EnumDisplayDevicesA(null, i, ref displayDevice, 1); i++)
             {
@@ -22,7 +21,7 @@ namespace ResolutionHelper
 
         private static string GetMonitorName(string monitorId)
         {
-            NativeStructs.DISPLAY_DEVICE displayDevice = new NativeStructs.DISPLAY_DEVICE();
+            var displayDevice = new NativeStructs.DISPLAY_DEVICE();
             displayDevice.cb = Marshal.SizeOf(displayDevice);
             NativeMethods.EnumDisplayDevicesA(monitorId, 0, ref displayDevice, 1);
 
@@ -31,7 +30,7 @@ namespace ResolutionHelper
 
         public static IEnumerable<NativeStructs.DEVMODE> GetDeviceModes(string deviceName)
         {
-            NativeStructs.DEVMODE devMode = new NativeStructs.DEVMODE();
+            var devMode = new NativeStructs.DEVMODE();
             for (int i = 0;  NativeMethods.EnumDisplaySettingsA(deviceName, i, ref devMode); i++)
             {
                 yield return devMode;
@@ -40,7 +39,7 @@ namespace ResolutionHelper
 
         public static Resolution GetCurrentResolution(string deviceName)
         {
-            NativeStructs.DEVMODE devMode = new NativeStructs.DEVMODE();
+            var devMode = new NativeStructs.DEVMODE();
             NativeMethods.EnumDisplaySettingsA(deviceName, -1, ref devMode);
             return new Resolution {Width = devMode.dmPelsWidth, Height = devMode.dmPelsHeight};
         }
@@ -57,21 +56,15 @@ namespace ResolutionHelper
             return NativeMethods.ChangeDisplaySettingsExA(deviceName, ref devMode, IntPtr.Zero, 1, IntPtr.Zero);
         }
 
-        public static IEnumerable<MonitorInfo> GetMonitorInfo()
+        public static MonitorInfo GetMonitorInfo(string deviceName)
         {
-            return GetEnumDisplayDevices().Select(d => new MonitorInfo
+            return new MonitorInfo
             {
-                Name = d.DeviceName,
-                Id = GetMonitorName(d.DeviceName),
-                CurrentDevMode = GetCurrentDevMode(d.DeviceName),
-                AvailableDevModes = GetDeviceModes(d.DeviceName),
-                CurrentResolution = GetCurrentResolution(d.DeviceName),
-                /*AvailableResolutions = GetDeviceModes(d.DeviceName).Select(m => new Resolution
-                {
-                    Width = m.dmPelsWidth,
-                    Height = m.dmPelsHeight
-                }).Distinct()*/
-            });
+                Name = deviceName,
+                Id = GetMonitorName(deviceName),
+                CurrentDevMode = GetCurrentDevMode(deviceName),
+                AvailableDevModes = GetDeviceModes(deviceName)
+            };
         }
     }
 }
